@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimplePaste - Online Pastebin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #24292e;
+            color: white;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        
+        header h1 {
+            margin: 0;
+            padding: 0 20px;
+        }
+        
+        .paste-form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #218838;
+        }
+        
+        .paste {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .paste pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        
+        .paste-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SimplePaste</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="paste-form">
+            <h2>Create New Paste</h2>
+            <form id="pasteForm">
+                <div class="form-group">
+                    <label for="pasteContent">Paste Content:</label>
+                    <textarea id="pasteContent" name="content" required placeholder="Paste your text here..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pasteTitle">Paste Name / Title (optional):</label>
+                    <input type="text" id="pasteTitle" name="title" placeholder="My Awesome Paste">
+                </div>
+                
+                <div class="form-group">
+                    <label for="pasteExpiry">Expiration:</label>
+                    <select id="pasteExpiry" name="expiry">
+                        <option value="never">Never</option>
+                        <option value="10m">10 Minutes</option>
+                        <option value="1h">1 Hour</option>
+                        <option value="1d">1 Day</option>
+                        <option value="1w">1 Week</option>
+                        <option value="1m">1 Month</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pasteSyntax">Syntax Highlighting:</label>
+                    <select id="pasteSyntax" name="syntax">
+                        <option value="none">None</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="php">PHP</option>
+                        <option value="sql">SQL</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Create Paste</button>
+            </form>
+        </div>
+        
+        <div id="pasteResult" class="paste" style="display: none;">
+            <h2>Your Paste</h2>
+            <div class="paste-meta">
+                <span id="pasteCreated"></span> | 
+                <span id="pasteExpiration"></span> | 
+                <span id="pasteSyntaxDisplay"></span>
+            </div>
+            <pre id="pasteContentDisplay"></pre>
+            <div class="paste-meta">
+                Paste URL: <input type="text" id="pasteUrl" readonly style="width: 300px;">
+                <button onclick="copyUrl()">Copy URL</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>SimplePaste - A simple pastebin service | <a href="#" style="color: #0366d6;">About</a></p>
+        </div>
+    </footer>
+    
+    <script>
+        document.getElementById('pasteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const content = document.getElementById('pasteContent').value;
+            const title = document.getElementById('pasteTitle').value || 'Untitled Paste';
+            const expiry = document.getElementById('pasteExpiry').value;
+            const syntax = document.getElementById('pasteSyntax').value;
+            
+            // In a real application, you would send this data to a server
+            // For this demo, we'll just display it on the page
+            
+            // Display the paste
+            document.getElementById('pasteContentDisplay').textContent = content;
+            document.getElementById('pasteCreated').textContent = 'Created: ' + new Date().toLocaleString();
+            
+            // Set expiration text
+            let expiryText = 'Expires: Never';
+            if (expiry !== 'never') {
+                const expiryDate = new Date();
+                switch(expiry) {
+                    case '10m': expiryDate.setMinutes(expiryDate.getMinutes() + 10); break;
+                    case '1h': expiryDate.setHours(expiryDate.getHours() + 1); break;
+                    case '1d': expiryDate.setDate(expiryDate.getDate() + 1); break;
+                    case '1w': expiryDate.setDate(expiryDate.getDate() + 7); break;
+                    case '1m': expiryDate.setMonth(expiryDate.getMonth() + 1); break;
+                }
+                expiryText = 'Expires: ' + expiryDate.toLocaleString();
+            }
+            document.getElementById('pasteExpiration').textContent = expiryText;
+            
+            // Set syntax text
+            document.getElementById('pasteSyntaxDisplay').textContent = 'Syntax: ' + 
+                (syntax === 'none' ? 'None' : syntax.charAt(0).toUpperCase() + syntax.slice(1));
+            
+            // Generate a fake URL (in a real app, this would come from the server)
+            const randomId = Math.random().toString(36).substring(2, 10);
+            const fakeUrl = window.location.href.split('?')[0] + '?p=' + randomId;
+            document.getElementById('pasteUrl').value = fakeUrl;
+            
+            // Show the result section
+            document.getElementById('pasteResult').style.display = 'block';
+            
+            // Scroll to the result
+            document.getElementById('pasteResult').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        function copyUrl() {
+            const urlInput = document.getElementById('pasteUrl');
+            urlInput.select();
+            document.execCommand('copy');
+            alert('URL copied to clipboard!');
+        }
+        
+        // Check for paste ID in URL (for viewing pastes)
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pasteId = urlParams.get('p');
+            
+            if (pasteId) {
+                // In a real app, you would fetch the paste from the server
+                // For this demo, we'll just show a message
+                document.getElementById('pasteContent').value = 
+                    "This would display paste with ID: " + pasteId + "\n\n" +
+                    "In a real application, this content would be loaded from a server.\n" +
+                    "For this demo, we're just showing this placeholder text.";
+                document.getElementById('pasteForm').scrollIntoView();
+            }
+        };
+    </script>
+</body>
+</html>
